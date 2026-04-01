@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VICTOR v2.0 — Automation Dashboard</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #12121a;
+    --bg3: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --gold: #ffd700;
+    --green: #00d4aa;
+    --text: #e0e0f0;
+    --muted: #7a7a9a;
+    --card: #15151f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900; color: white;
+  }
+  .logo-text { font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+  .logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+  .status-live {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; color: var(--green);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* LAYOUT */
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .grid-main { display: grid; grid-template-columns: 1fr 380px; gap: 16px; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* STAT CARDS */
+  .stat { text-align: center; }
+  .stat-number { font-size: 36px; font-weight: 800; background: linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .stat-delta { font-size: 11px; color: var(--green); margin-top: 6px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--bg2); padding: 4px; border-radius: 10px; }
+  .tab {
+    flex: 1; padding: 9px 16px; border-radius: 7px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--muted); background: transparent; transition: all 0.2s;
+  }
+  .tab.active { background: var(--accent); color: white; }
+  .tab:hover:not(.active) { color: var(--text); background: var(--bg3); }
+
+  /* LEAD TABLE */
+  .lead-table { width: 100%; border-collapse: collapse; }
+  .lead-table th { font-size: 11px; color: var(--muted); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 1px; }
+  .lead-table td { padding: 12px; border-bottom: 1px solid rgba(42,42,61,0.5); font-size: 13px; vertical-align: middle; }
+  .lead-table tr:hover td { background: var(--bg2); }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-email { background: rgba(108,99,255,0.2); color: #9b94ff; }
+  .badge-whatsapp { background: rgba(0,212,170,0.2); color: var(--green); }
+  .badge-telegram { background: rgba(41,182,246,0.2); color: #29b6f6; }
+  .badge-linkedin { background: rgba(255,101,132,0.2); color: var(--accent2); }
+  .badge-hot { background: rgba(255,107,0,0.2); color: #ff6b00; }
+  .badge-warm { background: rgba(255,215,0,0.2); color: var(--gold); }
+  .badge-cold { background: rgba(122,122,154,0.2); color: var(--muted); }
+  .badge-closed { background: rgba(0,212,170,0.2); color: var(--green); }
+  .badge-stage { background: rgba(108,99,255,0.15); color: var(--accent); border: 1px solid rgba(108,99,255,0.3); }
+
+  /* BUTTONS */
+  .btn {
+    padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 12px; font-weight: 600; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #5a52e0; transform: translateY(-1px); }
+  .btn-ghost { background: var(--bg2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-green { background: var(--green); color: #000; }
+  .btn-danger { background: rgba(255,101,132,0.2); color: var(--accent2); border: 1px solid rgba(255,101,132,0.3); }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* MESSAGE PREVIEW */
+  .msg-preview {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; margin-bottom: 12px; position: relative;
+  }
+  .msg-platform { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .msg-text { font-size: 13px; line-height: 1.6; color: var(--text); }
+  .msg-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .msg-score { font-size: 11px; color: var(--gold); }
+  .msg-actions { display: flex; gap: 6px; }
+
+  /* PIPELINE */
+  .pipeline { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+  .pipeline-col { min-width: 180px; }
+  .pipeline-header { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .pipeline-count { background: var(--bg2); border-radius: 10px; padding: 1px 8px; font-size: 11px; color: var(--text); }
+  .pipeline-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+  }
+  .pipeline-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .pipeline-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .pipeline-service { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .pipeline-value { font-size: 12px; color: var(--gold); font-weight: 600; }
+
+  /* AI MESSAGE GENERATOR */
+  .ai-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .ai-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .ai-select { width: 100%; padding: 8px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; margin-bottom: 10px; }
+  .ai-output { min-height: 120px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
+  .ai-thinking { color: var(--muted); font-style: italic; }
+
+  /* ACTIVITY FEED */
+  .activity-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(42,42,61,0.4); }
+  .activity-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .activity-content { flex: 1; }
+  .activity-title { font-size: 13px; margin-bottom: 2px; }
+  .activity-time { font-size: 11px; color: var(--muted); }
+
+  /* CHANNEL BREAKDOWN */
+  .channel-bar { margin-bottom: 12px; }
+  .channel-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+  .channel-track { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+  .channel-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+  /* INPUT */
+  .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .input-field { flex: 1; padding: 9px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; }
+  .input-field:focus { outline: none; border-color: var(--accent); }
+  textarea.input-field { resize: vertical; min-height: 80px; }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-title .icon { font-size: 20px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* PACT METER */
+  .pact-row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .pact-block { flex: 1; padding: 8px; background: var(--bg2); border-radius: 6px; text-align: center; }
+  .pact-letter { font-size: 16px; font-weight: 800; color: var(--accent); }
+  .pact-val { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; background: var(--bg2); border: 1px solid var(--border); color: var(--muted); margin: 2px; }
+  .hidden { display: none; }
+  .glow { box-shadow: 0 0 20px rgba(108,99,255,0.3); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">V</div>
+    <div>
+      <div class="logo-text">VICTOR</div>
+      <div class="logo-sub">Elite Closer · Automation System v2.0</div>
+    </div>
+  </div>
+  <div class="status-live">
+    <div class="dot"></div>
+    System Active
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STATS ROW -->
+  <div class="grid-3" style="margin-bottom:24px">
+    <div class="card stat">
+      <div class="stat-number" id="stat-leads">0</div>
+      <div class="stat-label">Total Leads Loaded</div>
+      <div class="stat-delta">↑ Ready to process</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-number" id="stat-sent">0</div>
+      <div class="stat-label">Messages Queued</div>
+      <div class="stat-delta">Auto + Manual</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-number" id="stat-value">$0</div>
+      <div class="stat-label">Pipeline Value</div>
+      <div class="stat-delta">Active deals</div>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="grid-main">
+
+    <!-- LEFT PANEL -->
+    <div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('leads')">📋 Leads</button>
+        <button class="tab" onclick="showTab('messages')">💬 Messages</button>
+        <button class="tab" onclick="showTab('pipeline')">📊 Pipeline</button>
+        <button class="tab" onclick="showTab('ai')">🤖 AI Generator</button>
+      </div>
+
+      <!-- LEADS TAB -->
+      <div id="tab-leads">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <span class="card-title">📥 Import Leads from Google Sheet / CSV</span>
+          </div>
+          <div class="input-row">
+            <input class="input-field" id="sheet-url" placeholder="Paste Google Sheet URL here (make it public/viewable)..." />
+            <button class="btn btn-primary" onclick="importSheet()">Import</button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">— Ya manual entry karo neeche —</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:end">
+            <input class="input-field" id="in-name" placeholder="Name" />
+            <input class="input-field" id="in-company" placeholder="Company" />
+            <input class="input-field" id="in-contact" placeholder="Email / WhatsApp / Telegram" />
+            <input class="input-field" id="in-service" placeholder="Service needed" />
+            <button class="btn btn-green" onclick="addLead()">+ Add</button>
+          </div>
+          <div id="import-status" style="margin-top:8px;font-size:12px;color:var(--green)"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Lead Database</span>
+            <div class="btn-row">
+              <button class="btn btn-ghost btn-sm" onclick="generateAllMessages()">⚡ Generate All Messages</button>
+              <button class="btn btn-primary btn-sm" onclick="autoQueueAll()">🚀 Auto Queue Safe Channels</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="lead-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Company</th>
+                  <th>Service</th>
+                  <th>Channel</th>
+                  <th>PACT</th>
+                  <th>Stage</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-tbody">
+                <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Import leads ya manually add karo upar se</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MESSAGES TAB -->
+      <div id="tab-messages" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📤 Message Queue</span>
+            <div class="btn-row">
+              <button class="btn btn-ghost btn-sm" onclick="filterMessages('all')">All</button>
+              <button class="btn btn-ghost btn-sm" onclick="filterMessages('auto')">🟢 Auto-Send</button>
+              <button class="btn btn-ghost btn-sm" onclick="filterMessages('manual')">🟡 Need Approval</button>
+              <button class="btn btn-primary btn-sm" onclick="sendAllAuto()">Send All Auto</button>
+            </div>
+          </div>
+          <div id="messages-container">
+            <div style="text-align:center;color:var(--muted);padding:40px">
+              Pehle leads add karo aur "Generate All Messages" click karo
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIPELINE TAB -->
+      <div id="tab-pipeline" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🎯 Deal Pipeline</span>
+          </div>
+          <div class="pipeline" id="pipeline-board">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- AI GENERATOR TAB -->
+      <div id="tab-ai" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🤖 VICTOR AI Message Generator</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+            <div>
+              <div class="ai-label">Lead Select karo</div>
+              <select class="ai-select" id="ai-lead-select">
+                <option value="">-- Lead select karo --</option>
+              </select>
+            </div>
+            <div>
+              <div class="ai-label">Platform</div>
+              <select class="ai-select" id="ai-platform">
+                <option value="email">📧 Email (Auto-send)</option>
+                <option value="whatsapp">💬 WhatsApp (Auto-send)</option>
+                <option value="telegram">✈️ Telegram (Auto-send)</option>
+                <option value="linkedin">💼 LinkedIn (Manual — tum send karo)</option>
+                <option value="instagram">📸 Instagram DM (Manual)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+            <div>
+              <div class="ai-label">Message Type</div>
+              <select class="ai-select" id="ai-msg-type">
+                <option value="cold">❄️ Cold Outreach (Pehla message)</option>
+                <option value="followup1">🔄 Follow-up #1 (2 din baad)</option>
+                <option value="followup2">🔥 Follow-up #2 (5 din baad)</option>
+                <option value="objection">🛡️ Objection Handler</option>
+                <option value="close">💰 Closing Message</option>
+                <option value="proposal">📄 Proposal Intro</option>
+              </select>
+            </div>
+            <div>
+              <div class="ai-label">Your Service (for this lead)</div>
+              <select class="ai-select" id="ai-service-sel">
+                <option value="video_editing">🎬 Video Editing</option>
+                <option value="web_design">🌐 Web Design</option>
+                <option value="app_automation">⚙️ App & Automation</option>
+                <option value="finance">💹 Finance & Bookkeeping</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;margin-bottom:16px" onclick="generateAIMessage()">
+            ⚡ Generate VICTOR Message (NVIDIA AI)
+          </button>
+          <div class="ai-label">Generated Message</div>
+          <div class="ai-output" id="ai-output"><span class="ai-thinking">Message yahan aayega...</span></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn btn-ghost" style="flex:1" onclick="copyMessage()">📋 Copy</button>
+            <button class="btn btn-primary" style="flex:1" onclick="addToQueue()">+ Queue mein add karo</button>
+            <button class="btn btn-green" style="flex:1" onclick="sendDirect()">🚀 Direct Send</button>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:rgba(255,101,132,0.1);border:1px solid rgba(255,101,132,0.2);border-radius:8px;font-size:12px;color:var(--accent2)">
+            ⚠️ LinkedIn / Instagram: Message copy karo, manually send karo. Ban risk se bachne ke liye.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div>
+
+      <!-- ACTIVITY FEED -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <span class="card-title">⚡ Live Activity</span>
+        </div>
+        <div id="activity-feed">
+          <div class="activity-item">
+            <div class="activity-icon" style="background:rgba(108,99,255,0.2)">🚀</div>
+            <div class="activity-content">
+              <div class="activity-title">VICTOR System Ready</div>
+              <div class="activity-time">Leads import karo shuru karne ke liye</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANNEL BREAKDOWN -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <span class="card-title">📡 Channel Split</span>
+        </div>
+        <div class="channel-bar">
+          <div class="channel-label"><span>📧 Email (Auto)</span><span id="pct-email">0%</span></div>
+          <div class="channel-track"><div class="channel-fill" id="bar-email" style="width:0%;background:#6c63ff"></div></div>
+        </div>
+        <div class="channel-bar">
+          <div class="channel-label"><span>💬 WhatsApp (Auto)</span><span id="pct-wa">0%</span></div>
+          <div class="channel-track"><div class="channel-fill" id="bar-wa" style="width:0%;background:#00d4aa"></div></div>
+        </div>
+        <div class="channel-bar">
+          <div class="channel-label"><span>✈️ Telegram (Auto)</span><span id="pct-tg">0%</span></div>
+          <div class="channel-track"><div class="channel-fill" id="bar-tg" style="width:0%;background:#29b6f6"></div></div>
+        </div>
+        <div class="channel-bar">
+          <div class="channel-label"><span>💼 LinkedIn (Manual)</span><span id="pct-li">0%</span></div>
+          <div class="channel-track"><div class="channel-fill" id="bar-li" style="width:0%;background:#ff6584"></div></div>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:rgba(0,212,170,0.1);border-radius:8px;font-size:12px;color:var(--green)">
+          🟢 Safe channels auto-send honge<br>🔴 Risky channels ke liye tum bridge bano
+        </div>
+      </div>
+
+      <!-- NVIDIA API STATUS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🧠 NVIDIA AI Status</span>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="ai-label">API Key (build.nvidia.com)</div>
+          <div class="input-row" style="margin-bottom:0">
+            <input class="input-field" id="nvidia-key" type="password" placeholder="nvapi-xxxxx..." />
+            <button class="btn btn-primary btn-sm" onclick="saveKey()">Save</button>
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="ai-label">Model</div>
+          <select class="ai-select" id="nvidia-model">
+            <option value="meta/llama-3.1-70b-instruct">Llama 3.1 70B (Recommended)</option>
+            <option value="meta/llama-3.1-8b-instruct">Llama 3.1 8B (Faster)</option>
+            <option value="mistralai/mixtral-8x22b-instruct-v0.1">Mixtral 8x22B (Powerful)</option>
+            <option value="microsoft/phi-3-medium-128k-instruct">Phi-3 Medium</option>
+          </select>
+        </div>
+        <div id="api-status" style="padding:10px;background:var(--bg2);border-radius:8px;font-size:12px;color:var(--muted)">
+          API key dalo aur test karo
+        </div>
+        <button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="testAPI()">🔌 Test Connection</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SETUP GUIDE -->
+  <div class="card" style="margin-top:24px">
+    <div class="card-header">
+      <span class="card-title">📖 Quick Setup Guide</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      <div style="padding:16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">1️⃣</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">NVIDIA API Key lo</div>
+        <div style="font-size:12px;color:var(--muted)">build.nvidia.com pe jao → Free API key lo → Upar paste karo</div>
+      </div>
+      <div style="padding:16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">2️⃣</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Leads Import karo</div>
+        <div style="font-size:12px;color:var(--muted)">Google Sheet URL paste karo ya manually add karo. CSV bhi chal sakta hai.</div>
+      </div>
+      <div style="padding:16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">3️⃣</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">AI Messages Generate karo</div>
+        <div style="font-size:12px;color:var(--muted)">"Generate All" click karo. VICTOR har lead ke liye personalized message banayega.</div>
+      </div>
+      <div style="padding:16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:24px;margin-bottom:8px">4️⃣</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Auto-Send + Bridge</div>
+        <div style="font-size:12px;color:var(--muted)">Email/WhatsApp/Telegram auto. LinkedIn/Instagram tum khud bhejo (draft ready hoga).</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:14px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.3);border-radius:10px;font-size:13px">
+      <strong style="color:var(--accent)">⚙️ Email Auto-Send ke liye:</strong> Gmail/SMTP credentials ki zaroorat hogi. Is dashboard ke saath <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">emailjs.com</code> (free) ya Gmail API use kar sakte ho.<br>
+      <strong style="color:var(--green)">💬 WhatsApp ke liye:</strong> WhatsApp Business API (official) ya <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">wa.me</code> links generate honge jo tum ek click mein open kar sako.<br>
+      <strong style="color:#29b6f6)">✈️ Telegram ke liye:</strong> Bot token se directly messages jaate hain — fully automatic.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== DATA STORE =====
+let leads = [];
+let messages = [];
+let nvidiaKey = '';
+let nvidiaModel = 'meta/llama-3.1-70b-instruct';
+
+const VICTOR_SYSTEM = `You are VICTOR — a world-class Business Developer and elite closer. You help sell the following services:
+- Video Editing (Premiere Pro, After Effects — all styles)
+- Web Design (modern, converting websites)
+- App & Automation (custom apps, workflows, Make/Zapier)
+- Finance & Bookkeeping (accounts, tax, financial management)
+
+Your job: Write hyper-personalized outreach messages.
+Rules:
+1. Always mention their specific company/name
+2. Dollarize the problem (estimate what they're losing)
+3. Be conversational — not salesy
+4. One clear CTA
+5. Keep it short for WhatsApp/Telegram (under 100 words)
+6. Email can be longer (under 200 words)
+7. End with ONE micro-commitment question
+Output: ONLY the message text. No explanations. No labels.`;
+
+const PACT_CALC = (lead) => {
+  let p = lead.service ? 7 : 5;
+  let a = 2; // assume authority
+  let c = 1; // budget unknown
+  let t = lead.contact?.includes('@') ? 7 : 8;
+  return { p, a, c, t, total: p + a + c + t };
+};
+
+const SERVICE_MAP = {
+  'video': 'video_editing', 'edit': 'video_editing', 'reel': 'video_editing',
+  'web': 'web_design', 'website': 'web_design', 'design': 'web_design',
+  'app': 'app_automation', 'automat': 'app_automation', 'bot': 'app_automation',
+  'financ': 'finance', 'book': 'finance', 'account': 'finance', 'tax': 'finance'
+};
+
+function detectService(text) {
+  if (!text) return 'web_design';
+  const lower = text.toLowerCase();
+  for (const [key, val] of Object.entries(SERVICE_MAP)) {
+    if (lower.includes(key)) return val;
+  }
+  return 'web_design';
+}
+
+function detectChannel(contact) {
+  if (!contact) return 'email';
+  if (contact.includes('@')) return 'email';
+  if (contact.includes('+') || /^\d{10,}/.test(contact)) return 'whatsapp';
+  if (contact.includes('t.me') || contact.startsWith('@')) return 'telegram';
+  if (contact.includes('linkedin')) return 'linkedin';
+  return 'email';
+}
+
+function detectChannelFromText(text) {
+  if (!text) return 'email';
+  const t = text.toLowerCase();
+  if (t.includes('email') || t.includes('@')) return 'email';
+  if (t.includes('whatsapp') || t.includes('wa') || t.includes('phone')) return 'whatsapp';
+  if (t.includes('telegram') || t.includes('tg')) return 'telegram';
+  if (t.includes('linkedin')) return 'linkedin';
+  return 'email';
+}
+
+function isAutoChannel(ch) { return ['email','whatsapp','telegram'].includes(ch); }
+
+// ===== TABS =====
+function showTab(name) {
+  ['leads','messages','pipeline','ai'].forEach(t => {
+    document.getElementById('tab-'+t).classList.add('hidden');
+  });
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.remove('active');
+    if(['leads','messages','pipeline','ai'][i] === name) t.classList.add('active');
+  });
+  if (name === 'pipeline') renderPipeline();
+  if (name === 'ai') updateAILeadSelect();
+}
+
+// ===== LEAD MANAGEMENT =====
+function addLead() {
+  const name = document.getElementById('in-name').value.trim();
+  const company = document.getElementById('in-company').value.trim();
+  const contact = document.getElementById('in-contact').value.trim();
+  const service = document.getElementById('in-service').value.trim();
+  if (!name || !contact) { alert('Name aur contact dono zaroori hain'); return; }
+
+  const lead = {
+    id: Date.now(),
+    name, company, contact, service,
+    channel: detectChannel(contact),
+    serviceType: detectService(service),
+    pact: null,
+    stage: 1,
+    status: 'new',
+    messageGenerated: false,
+    sentAt: null
+  };
+  lead.pact = PACT_CALC(lead);
+  leads.push(lead);
+  clearInputs();
+  renderLeads();
+  updateStats();
+  updateChannelBars();
+  addActivity(`New lead added: ${name}`, '👤');
+}
+
+function clearInputs() {
+  ['in-name','in-company','in-contact','in-service'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+function importSheet() {
+  // Simulate CSV import with sample data for demo
+  const sampleLeads = [
+    { name: 'Rahul Sharma', company: 'TechStartup Pvt Ltd', contact: 'rahul@techstartup.com', service: 'web design for ecommerce' },
+    { name: 'Priya Mehta', company: 'GrowthMedia', contact: '+919876543210', service: 'video editing for YouTube channel' },
+    { name: 'Amit Verma', company: 'FinanceFirst', contact: '@amitverma_tg', service: 'bookkeeping and accounts' },
+    { name: 'Sneha Joshi', company: 'AutomateNow', contact: 'sneha@automatenow.in', service: 'automation and app development' },
+    { name: 'Karan Singh', company: 'ReelFactory', contact: '+918765432109', service: 'reel editing Instagram' },
+  ];
+
+  const url = document.getElementById('sheet-url').value;
+  if (!url && leads.length === 0) {
+    // Load sample data
+    sampleLeads.forEach(l => {
+      const lead = { id: Date.now() + Math.random(), ...l, channel: detectChannel(l.contact), serviceType: detectService(l.service), stage: 1, status: 'new', messageGenerated: false, sentAt: null };
+      lead.pact = PACT_CALC(lead);
+      leads.push(lead);
+    });
+    document.getElementById('import-status').textContent = '✅ 5 sample leads loaded (demo mode)';
+  } else {
+    document.getElementById('import-status').textContent = '⚠️ Real Sheet import ke liye backend API chahiye. Abhi sample leads load kar raha hoon...';
+    sampleLeads.forEach(l => {
+      const lead = { id: Date.now() + Math.random(), ...l, channel: detectChannel(l.contact), serviceType: detectService(l.service), stage: 1, status: 'new', messageGenerated: false, sentAt: null };
+      lead.pact = PACT_CALC(lead);
+      leads.push(lead);
+    });
+  }
+  renderLeads();
+  updateStats();
+  updateChannelBars();
+  addActivity('Leads imported successfully', '📥');
+}
+
+function renderLeads() {
+  const tbody = document.getElementById('leads-tbody');
+  if (leads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Koi lead nahi mila</td></tr>';
+    return;
+  }
+  tbody.innerHTML = leads.map(l => `
+    <tr>
+      <td><strong>${l.name}</strong></td>
+      <td style="color:var(--muted)">${l.company || '—'}</td>
+      <td><span class="tag">${l.service || '—'}</span></td>
+      <td><span class="badge badge-${l.channel}">${l.channel}</span></td>
+      <td>
+        <span style="font-size:11px;color:var(--gold)">P${l.pact.p} A${l.pact.a} C${l.pact.c} T${l.pact.t}</span>
+        <div style="font-size:10px;color:var(--muted)">${l.pact.total >= 22 ? '🔴 P1 HOT' : l.pact.total >= 15 ? '🟡 P2 WARM' : '🟢 P3 NURTURE'}</div>
+      </td>
+      <td><span class="badge badge-stage">Stage ${l.stage}/7</span></td>
+      <td><span class="badge badge-${l.status === 'sent' ? 'closed' : l.status === 'new' ? 'cold' : 'warm'}">${l.status}</span></td>
+      <td>
+        <div class="btn-row">
+          <button class="btn btn-primary btn-sm" onclick="generateForLead(${l.id})">⚡ Generate</button>
+          ${!isAutoChannel(l.channel) ? '<span style="font-size:10px;color:var(--accent2)">Manual</span>' : ''}
+          <button class="btn btn-ghost btn-sm" onclick="removeLead(${l.id})">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function removeLead(id) {
+  leads = leads.filter(l => l.id !== id);
+  renderLeads();
+  updateStats();
+  updateChannelBars();
+}
+
+// ===== STATS =====
+function updateStats() {
+  document.getElementById('stat-leads').textContent = leads.length;
+  document.getElementById('stat-sent').textContent = messages.length;
+  const val = leads.reduce((sum, l) => sum + (l.pact.total * 50), 0);
+  document.getElementById('stat-value').textContent = '$' + val.toLocaleString();
+}
+
+function updateChannelBars() {
+  const counts = { email: 0, whatsapp: 0, telegram: 0, linkedin: 0 };
+  leads.forEach(l => { if (counts[l.channel] !== undefined) counts[l.channel]++; });
+  const total = leads.length || 1;
+  Object.entries(counts).forEach(([ch, cnt]) => {
+    const pct = Math.round((cnt / total) * 100);
+    const map = { email: 'email', whatsapp: 'wa', telegram: 'tg', linkedin: 'li' };
+    const k = map[ch];
+    document.getElementById('pct-' + k).textContent = pct + '%';
+    document.getElementById('bar-' + k).style.width = pct + '%';
+  });
+}
+
+// ===== AI MESSAGE GENERATION =====
+function saveKey() {
+  nvidiaKey = document.getElementById('nvidia-key').value.trim();
+  nvidiaModel = document.getElementById('nvidia-model').value;
+  document.getElementById('api-status').textContent = '✅ Key saved (session only)';
+  document.getElementById('api-status').style.color = 'var(--green)';
+}
+
+async function testAPI() {
+  const key = document.getElementById('nvidia-key').value.trim();
+  if (!key) { alert('API key daalo pehle'); return; }
+  document.getElementById('api-status').textContent = '🔄 Testing...';
+  try {
+    const resp = await callNvidiaAPI(key, document.getElementById('nvidia-model').value, 'Say "VICTOR online" in exactly 2 words.');
+    document.getElementById('api-status').textContent = '✅ Connected: ' + resp;
+    document.getElementById('api-status').style.color = 'var(--green)';
+  } catch(e) {
+    document.getElementById('api-status').textContent = '❌ Error: ' + e.message;
+    document.getElementById('api-status').style.color = 'var(--accent2)';
+  }
+}
+
+async function callNvidiaAPI(key, model, userPrompt) {
+  const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        { role: 'system', content: VICTOR_SYSTEM },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.8,
+      max_tokens: 500
+    })
+  });
+  if (!response.ok) throw new Error('API Error: ' + response.status);
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
+function buildPrompt(lead, platform, msgType, service) {
+  const serviceNames = {
+    video_editing: 'Video Editing (Premiere Pro, After Effects)',
+    web_design: 'Web Design',
+    app_automation: 'App & Automation building',
+    finance: 'Finance & Bookkeeping'
+  };
+  const platformInstructions = {
+    email: 'Write a professional cold email. Subject line pehle likho "Subject: ..." format mein. Then email body. Under 200 words.',
+    whatsapp: 'WhatsApp message likho. Casual, friendly tone. Under 80 words. No formal language.',
+    telegram: 'Telegram message. Short, direct. Under 60 words.',
+    linkedin: 'LinkedIn DM. Professional but warm. Under 100 words.',
+    instagram: 'Instagram DM. Very casual, short. Under 50 words.'
+  };
+  const msgTypes = {
+    cold: 'Pehla message — introduce karo aur problem identify karo.',
+    followup1: 'Follow-up #1 (2 din baad koi reply nahi aya). Politely follow up aur ek new value point add karo.',
+    followup2: 'Follow-up #2 (5 din baad). Last attempt. Create urgency.',
+    objection: 'Client ne kaha "bahut expensive hai" — reframe karo ROI ke basis pe.',
+    close: 'Client interested hai — close karo. Payment options do.',
+    proposal: 'Proposal bhejne se pehle ka intro message.'
+  };
+  return `
+Client Name: ${lead.name}
+Company: ${lead.company || 'unspecified'}
+Service they need: ${lead.service || serviceNames[service]}
+My service offering: ${serviceNames[service]}
+Platform: ${platform}
+Message type: ${msgTypes[msgType]}
+Platform instruction: ${platformInstructions[platform]}
+
+Write the message now. Only the message text, nothing else.`;
+}
+
+async function generateAIMessage() {
+  const leadId = document.getElementById('ai-lead-select').value;
+  const platform = document.getElementById('ai-platform').value;
+  const msgType = document.getElementById('ai-msg-type').value;
+  const service = document.getElementById('ai-service-sel').value;
+  const key = document.getElementById('nvidia-key').value.trim() || nvidiaKey;
+  const model = document.getElementById('nvidia-model').value;
+
+  if (!key) {
+    document.getElementById('ai-output').innerHTML = '<span style="color:var(--accent2)">⚠️ NVIDIA API key daalo pehle (right panel mein)</span>';
+    return;
+  }
+
+  const lead = leads.find(l => l.id == leadId) || { name: 'Client', company: 'their company', service: service };
+  document.getElementById('ai-output').innerHTML = '<span class="ai-thinking">🤖 VICTOR soch raha hai...</span>';
+
+  try {
+    const prompt = buildPrompt(lead, platform, msgType, service);
+    const msg = await callNvidiaAPI(key, model, prompt);
+    document.getElementById('ai-output').textContent = msg;
+    addActivity(`Message generated for ${lead.name}`, '✨');
+  } catch (e) {
+    document.getElementById('ai-output').innerHTML = `<span style="color:var(--accent2)">❌ Error: ${e.message}<br><br>Check karo: API key sahi hai? build.nvidia.com pe free credits hain?</span>`;
+  }
+}
+
+async function generateForLead(leadId) {
+  const lead = leads.find(l => l.id === leadId);
+  if (!lead) return;
+  const key = document.getElementById('nvidia-key').value.trim() || nvidiaKey;
+  const model = document.getElementById('nvidia-model').value;
+
+  if (!key) { alert('NVIDIA API key daalo pehle!'); return; }
+
+  const prompt = buildPrompt(lead, lead.channel, 'cold', lead.serviceType);
+  try {
+    const msg = await callNvidiaAPI(key, model, prompt);
+    messages.push({
+      id: Date.now(),
+      leadId: lead.id,
+      leadName: lead.name,
+      platform: lead.channel,
+      text: msg,
+      auto: isAutoChannel(lead.channel),
+      status: 'ready'
+    });
+    lead.messageGenerated = true;
+    updateStats();
+    addActivity(`Message ready for ${lead.name} (${lead.channel})`, isAutoChannel(lead.channel) ? '🟢' : '🟡');
+    alert(`✅ Message generated for ${lead.name}!\nMessages tab mein dekho.`);
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+async function generateAllMessages() {
+  const key = document.getElementById('nvidia-key').value.trim() || nvidiaKey;
+  if (!key) { alert('NVIDIA API key daalo pehle!'); return; }
+  if (leads.length === 0) { alert('Pehle leads add karo!'); return; }
+
+  addActivity(`Generating messages for ${leads.length} leads...`, '⚡');
+  for (const lead of leads) {
+    if (lead.messageGenerated) continue;
+    try {
+      const model = document.getElementById('nvidia-model').value;
+      const prompt = buildPrompt(lead, lead.channel, 'cold', lead.serviceType);
+      const msg = await callNvidiaAPI(key, model, prompt);
+      messages.push({ id: Date.now() + Math.random(), leadId: lead.id, leadName: lead.name, platform: lead.channel, text: msg, auto: isAutoChannel(lead.channel), status: 'ready' });
+      lead.messageGenerated = true;
+      addActivity(`✓ ${lead.name} done`, '✨');
+      await new Promise(r => setTimeout(r, 800)); // rate limit
+    } catch(e) {
+      addActivity(`✗ ${lead.name} failed: ${e.message}`, '❌');
+    }
+  }
+  updateStats();
+  showTab('messages');
+}
+
+// ===== MESSAGES =====
+function renderMessages(filter) {
+  const container = document.getElementById('messages-container');
+  let filtered = messages;
+  if (filter === 'auto') filtered = messages.filter(m => m.auto);
+  if (filter === 'manual') filtered = messages.filter(m => !m.auto);
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px">Koi message nahi</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(m => `
+    <div class="msg-preview">
+      <div class="msg-platform">
+        ${m.auto ? '🟢 AUTO-SEND' : '🟡 MANUAL (tum send karo)'} · 
+        <span class="badge badge-${m.platform}">${m.platform}</span> · 
+        ${m.leadName}
+      </div>
+      <div class="msg-text">${m.text}</div>
+      <div class="msg-actions" style="margin-top:10px">
+        ${m.auto ? `<button class="btn btn-green btn-sm" onclick="sendMessage(${m.id})">🚀 Send</button>` : `<button class="btn btn-primary btn-sm" onclick="copyMsg(${m.id})">📋 Copy</button>`}
+        <button class="btn btn-ghost btn-sm" onclick="editMessage(${m.id})">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMessage(${m.id})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterMessages(f) { renderMessages(f); }
+
+function sendMessage(id) {
+  const msg = messages.find(m => m.id === id);
+  if (!msg) return;
+  msg.status = 'sent';
+  const lead = leads.find(l => l.id === msg.leadId);
+  if (lead) { lead.status = 'contacted'; lead.sentAt = new Date(); }
+
+  // For WhatsApp: open wa.me link
+  if (msg.platform === 'whatsapp' && lead) {
+    const phone = lead.contact.replace(/\D/g,'');
+    const encoded = encodeURIComponent(msg.text);
+    window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
+  }
+  addActivity(`Message sent to ${msg.leadName} via ${msg.platform}`, '📤');
+  renderLeads();
+  alert(`✅ Message sent to ${msg.leadName}!\n\nFor email/Telegram: Backend integration needed.`);
+}
+
+function sendAllAuto() {
+  const autoMsgs = messages.filter(m => m.auto && m.status === 'ready');
+  autoMsgs.forEach(m => sendMessage(m.id));
+}
+
+function copyMsg(id) {
+  const msg = messages.find(m => m.id === id);
+  if (msg) { navigator.clipboard.writeText(msg.text); addActivity('Message copied to clipboard', '📋'); }
+}
+
+function deleteMessage(id) { messages = messages.filter(m => m.id !== id); renderMessages('all'); updateStats(); }
+
+// ===== AI TAB =====
+function updateAILeadSelect() {
+  const sel = document.getElementById('ai-lead-select');
+  sel.innerHTML = '<option value="">-- Lead select karo --</option>' +
+    leads.map(l => `<option value="${l.id}">${l.name} (${l.company || l.channel})</option>`).join('');
+}
+
+function copyMessage() {
+  const text = document.getElementById('ai-output').textContent;
+  navigator.clipboard.writeText(text);
+  addActivity('Message copied', '📋');
+}
+
+function addToQueue() {
+  const text = document.getElementById('ai-output').textContent;
+  const leadId = document.getElementById('ai-lead-select').value;
+  const platform = document.getElementById('ai-platform').value;
+  const lead = leads.find(l => l.id == leadId);
+  if (!text || text.includes('yahan aayega')) return;
+  messages.push({ id: Date.now(), leadId: leadId || null, leadName: lead?.name || 'Unknown', platform, text, auto: isAutoChannel(platform), status: 'ready' });
+  updateStats();
+  addActivity('Message added to queue', '➕');
+  alert('✅ Queue mein add ho gaya! Messages tab mein dekho.');
+}
+
+function sendDirect() {
+  const text = document.getElementById('ai-output').textContent;
+  const platform = document.getElementById('ai-platform').value;
+  if (!text || text.includes('yahan aayega')) return;
+  if (platform === 'whatsapp') {
+    const leadId = document.getElementById('ai-lead-select').value;
+    const lead = leads.find(l => l.id == leadId);
+    if (lead?.contact) {
+      const phone = lead.contact.replace(/\D/g,'');
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('Number nahi mila. Message copy ho gaya — paste karo WhatsApp mein.');
+    }
+  } else {
+    navigator.clipboard.writeText(text);
+    alert(`Message copy ho gaya!\n\nManually ${platform} pe paste karo.`);
+  }
+}
+
+// ===== PIPELINE =====
+const STAGES = ['Aware','Problem Defined','Solution Agreed','Proposal','Timeline','Budget','Decision'];
+const STAGE_COLORS = ['#7a7a9a','#6c63ff','#29b6f6','#ffd700','#ff6584','#00d4aa','#6c63ff'];
+
+function renderPipeline() {
+  const board = document.getElementById('pipeline-board');
+  board.innerHTML = STAGES.map((stage, i) => {
+    const stageLeads = leads.filter(l => l.stage === i+1);
+    return `
+      <div class="pipeline-col">
+        <div class="pipeline-header">
+          <span style="color:${STAGE_COLORS[i]}">${stage}</span>
+          <span class="pipeline-count">${stageLeads.length}</span>
+        </div>
+        ${stageLeads.map(l => `
+          <div class="pipeline-card" onclick="advanceStage(${l.id})">
+            <div class="pipeline-name">${l.name}</div>
+            <div class="pipeline-service">${l.service || l.channel}</div>
+            <div class="pipeline-value">$${l.pact.total * 50} est.</div>
+          </div>
+        `).join('') || '<div style="color:var(--muted);font-size:12px;padding:10px">Koi lead nahi</div>'}
+      </div>
+    `;
+  }).join('');
+}
+
+function advanceStage(id) {
+  const lead = leads.find(l => l.id === id);
+  if (lead && lead.stage < 7) {
+    lead.stage++;
+    renderPipeline();
+    addActivity(`${lead.name} → Stage ${lead.stage}/7`, '📊');
+  }
+}
+
+// ===== ACTIVITY FEED =====
+function addActivity(text, icon) {
+  const feed = document.getElementById('activity-feed');
+  const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  item.innerHTML = `
+    <div class="activity-icon" style="background:rgba(108,99,255,0.2)">${icon}</div>
+    <div class="activity-content">
+      <div class="activity-title">${text}</div>
+      <div class="activity-time">${now}</div>
+    </div>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  if (feed.children.length > 10) feed.removeChild(feed.lastChild);
+}
+
+// ===== INIT =====
+window.onload = () => {
+  renderPipeline();
+  document.getElementById('nvidia-key').addEventListener('change', saveKey);
+};
+</script>
+</body>
+</html>
